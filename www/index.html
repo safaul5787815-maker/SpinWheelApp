@@ -173,6 +173,18 @@ function spin(){
 
   while(delta < 0) delta += Math.PI * 2;
   const extra=(6+Math.floor(Math.random()*3))*Math.PI*2;
+const positionNames = [
+  "Standing",
+  "Back side",
+  "Cow girl",
+  "Cow girl",
+  "Missionary",
+  "Oral girl",
+  "Oral man",
+  "Missionary",
+  "Girl on top seating",
+  "Doggy style"
+];
   const start=rotation;
   const end=rotation+extra+delta;
   const duration=4200+Math.random()*900;
@@ -186,7 +198,8 @@ function spin(){
     if(p<1){requestAnimationFrame(frame)}
     else{
       spinning=false;btn.disabled=false;
-      result.textContent="Selected: Option "+(winner+1);
+
+result.textContent="Selected: "+positionNames[winner];
     }
   }
   requestAnimationFrame(frame);
