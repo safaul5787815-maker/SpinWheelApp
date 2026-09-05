@@ -107,10 +107,10 @@ function spin(){
   if(spinning)return;
   spinning=true;btn.disabled=true;result.textContent="";
   const winner=Math.floor(Math.random()*N);
-  const targetIndexAngle=winner*slice+slice/2;
-  const pointerAngle=-Math.PI/2;
-  let delta=pointerAngle-targetIndexAngle;
-  while(delta<0)delta+=Math.PI*2;
+  const targetIndexAngle = winner * slice + slice / 2;
+  let delta = -targetIndexAngle - rotation;
+
+  while(delta < 0) delta += Math.PI * 2;
   const extra=(6+Math.floor(Math.random()*3))*Math.PI*2;
   const start=rotation;
   const end=rotation+extra+delta;
