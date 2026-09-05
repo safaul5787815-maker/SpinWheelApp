@@ -71,36 +71,107 @@ const N=10, slice=Math.PI*2/N;
 let rotation=0, spinning=false;
 
 function draw(){
-  const cx=canvas.width/2, cy=canvas.height/2, r=canvas.width*.47;
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  for(let i=0;i<N;i++){
-    const a0=rotation+i*slice-Math.PI/2;
-    const a1=a0+slice;
-    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,a0,a1);ctx.closePath();
-    ctx.fillStyle=`hsl(${i*36+8} 78% 55%)`;ctx.fill();
-    ctx.strokeStyle="#fff";ctx.lineWidth=5;ctx.stroke();
+  const cx = canvas.width / 2;
+  const cy = canvas.height / 2;
+  const r = canvas.width * 0.47;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  for(let i = 0; i < N; i++){
+
+    const a0 = rotation + i * slice - Math.PI / 2;
+    const a1 = a0 + slice;
+
+    /* =========================
+       WHEEL SLICE
+    ========================= */
+
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, a0, a1);
+    ctx.closePath();
+
+    ctx.fillStyle = `hsl(${i * 36 + 8} 78% 55%)`;
+    ctx.fill();
+
+    /* =========================
+       IMAGE FULL SLICE
+    ========================= */
 
     if(images[i] && images[i].complete && images[i].naturalWidth){
-      const mid=(a0+a1)/2;
-      const ix=cx+Math.cos(mid)*r*.62;
-      const iy=cy+Math.sin(mid)*r*.62;
-      const size=r*.43;
+
       ctx.save();
-      ctx.beginPath();ctx.arc(ix,iy,size*.48,0,Math.PI*2);ctx.clip();
-      const iw=images[i].naturalWidth, ih=images[i].naturalHeight;
-      const scale=Math.max(size/iw,size/ih)*1.55;
-      const dw=iw*scale, dh=ih*scale;
-      ctx.drawImage(images[i],ix-dw/2,iy-dh/2,dw,dh);
+
+      /* Image ko poore sector ke andar rakho */
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.arc(cx, cy, r, a0, a1);
+      ctx.closePath();
+      ctx.clip();
+
+      const iw = images[i].naturalWidth;
+      const ih = images[i].naturalHeight;
+
+      /*
+        Image ko wheel ke size tak bada karo
+        taaki slot khaali na rahe.
+      */
+      const scale = Math.max(
+        (r * 2) / iw,
+        (r * 2) / ih
+      );
+
+      const dw = iw * scale;
+      const dh = ih * scale;
+
+      ctx.drawImage(
+        images[i],
+        cx - dw / 2,
+        cy - dh / 2,
+        dw,
+        dh
+      );
+
       ctx.restore();
-      ctx.beginPath();ctx.arc(ix,iy,size*.48,0,Math.PI*2);
-      ctx.strokeStyle="#fff";ctx.lineWidth=4;ctx.stroke();
-    } else {
-      const mid=(a0+a1)/2;
-      ctx.fillStyle="#fff";ctx.font="bold 34px Arial";ctx.textAlign="center";ctx.textBaseline="middle";
-      ctx.fillText(i+1,cx+Math.cos(mid)*r*.62,cy+Math.sin(mid)*r*.62);
+
+    }else{
+
+      /* Image load na ho to number */
+      const mid = (a0 + a1) / 2;
+
+      ctx.fillStyle = "#fff";
+      ctx.font = "bold 34px Arial";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+
+      ctx.fillText(
+        i + 1,
+        cx + Math.cos(mid) * r * .65,
+        cy + Math.sin(mid) * r * .65
+      );
     }
+
+    /* =========================
+       SLICE BORDER
+    ========================= */
+
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, a0, a1);
+    ctx.closePath();
+
+    ctx.strokeStyle = "#fff";
+    ctx.lineWidth = 5;
+    ctx.stroke();
   }
-  ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.strokeStyle="#fff";ctx.lineWidth=10;ctx.stroke();
+
+  /* Outer wheel border */
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+
+  ctx.strokeStyle = "#fff";
+  ctx.lineWidth = 10;
+  ctx.stroke();
 }
 
 function spin(){
