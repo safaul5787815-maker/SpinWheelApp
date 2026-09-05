@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Spin Wheel</title>
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0; min-height:100vh; font-family:Arial,sans-serif;
+  background:linear-gradient(160deg,#10152b,#241044);
+  color:#fff; display:flex; justify-content:center; align-items:center;
+}
+.app{width:100%;max-width:520px;padding:18px;text-align:center}
+h1{margin:5px 0 16px;font-size:28px}
+.wheel-wrap{position:relative;width:min(92vw,440px);aspect-ratio:1;margin:auto}
+canvas{width:100%;height:100%;display:block;border-radius:50%;filter:drop-shadow(0 12px 22px #0008)}
+.pointer{
+ position:absolute;top:-7px;left:50%;transform:translateX(-50%);
+ width:0;height:0;border-left:17px solid transparent;border-right:17px solid transparent;
+ border-top:0;border-bottom:30px solid #ffd54a;z-index:5;
+ filter:drop-shadow(0 3px 3px #0008)
+}
+.center{
+ position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+ width:72px;height:72px;border-radius:50%;background:#fff;
+ border:7px solid #ffcf33;box-shadow:0 4px 12px #0008;
+ z-index:4;display:flex;align-items:center;justify-content:center;
+ color:#32155e;font-weight:800;font-size:13px;
+}
+button{
+ margin-top:22px;border:0;border-radius:999px;padding:15px 42px;
+ font-size:18px;font-weight:800;background:#ffd54a;color:#241044;
+ box-shadow:0 7px 18px #0006;cursor:pointer
+}
+button:disabled{opacity:.6}
+#result{min-height:30px;margin-top:18px;font-size:20px;font-weight:700}
+.small{opacity:.7;font-size:12px;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="app">
+  <h1>🎡 Spin Wheel</h1>
+  <div class="wheel-wrap">
+    <div class="pointer"></div>
+    <canvas id="wheel" width="900" height="900"></canvas>
+    <div class="center">SPIN</div>
+  </div>
+  <button id="spinBtn">SPIN</button>
+  <div id="result"></div>
+  <div class="small">10 image options • random result</div>
+</div>
+
+<script>
+const canvas=document.getElementById("wheel");
+const ctx=canvas.getContext("2d");
+const btn=document.getElementById("spinBtn");
+const result=document.getElementById("result");
+
+const images=[];
+const sources=Array.from({length:10},(_,i)=>`images/position${i+1}.jpg`);
+let loaded=0;
+sources.forEach((src,i)=>{
+  const im=new Image();
+  im.onload=()=>{loaded++; draw();};
+  im.src=src;
+  images[i]=im;
+});
+
+const N=10, slice=Math.PI*2/N;
+let rotation=0, spinning=false;
+
+function draw(){
+  const cx=canvas.width/2, cy=canvas.height/2, r=canvas.width*.47;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  for(let i=0;i<N;i++){
+    const a0=rotation+i*slice-Math.PI/2;
+    const a1=a0+slice;
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,a0,a1);ctx.closePath();
+    ctx.fillStyle=`hsl(${i*36+8} 78% 55%)`;ctx.fill();
+    ctx.strokeStyle="#fff";ctx.lineWidth=5;ctx.stroke();
+
+    if(images[i] && images[i].complete && images[i].naturalWidth){
+      const mid=(a0+a1)/2;
+      const ix=cx+Math.cos(mid)*r*.62;
+      const iy=cy+Math.sin(mid)*r*.62;
+      const size=r*.43;
+      ctx.save();
+      ctx.beginPath();ctx.arc(ix,iy,size*.48,0,Math.PI*2);ctx.clip();
+      const iw=images[i].naturalWidth, ih=images[i].naturalHeight;
+      const scale=Math.max(size/iw,size/ih)*1.55;
+      const dw=iw*scale, dh=ih*scale;
+      ctx.drawImage(images[i],ix-dw/2,iy-dh/2,dw,dh);
+      ctx.restore();
+      ctx.beginPath();ctx.arc(ix,iy,size*.48,0,Math.PI*2);
+      ctx.strokeStyle="#fff";ctx.lineWidth=4;ctx.stroke();
+    } else {
+      const mid=(a0+a1)/2;
+      ctx.fillStyle="#fff";ctx.font="bold 34px Arial";ctx.textAlign="center";ctx.textBaseline="middle";
+      ctx.fillText(i+1,cx+Math.cos(mid)*r*.62,cy+Math.sin(mid)*r*.62);
+    }
+  }
+  ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.strokeStyle="#fff";ctx.lineWidth=10;ctx.stroke();
+}
+
+function spin(){
+  if(spinning)return;
+  spinning=true;btn.disabled=true;result.textContent="";
+  const winner=Math.floor(Math.random()*N);
+  const targetIndexAngle=winner*slice+slice/2;
+  const pointerAngle=-Math.PI/2;
+  let delta=pointerAngle-targetIndexAngle;
+  while(delta<0)delta+=Math.PI*2;
+  const extra=(6+Math.floor(Math.random()*3))*Math.PI*2;
+  const start=rotation;
+  const end=rotation+extra+delta;
+  const duration=4200+Math.random()*900;
+  const t0=performance.now();
+
+  function frame(now){
+    const p=Math.min(1,(now-t0)/duration);
+    const eased=1-Math.pow(1-p,4);
+    rotation=start+(end-start)*eased;
+    draw();
+    if(p<1){requestAnimationFrame(frame)}
+    else{
+      spinning=false;btn.disabled=false;
+      result.textContent="Selected: Option "+(winner+1);
+    }
+  }
+  requestAnimationFrame(frame);
+}
+btn.addEventListener("click",spin);
+draw();
+</script>
+</body>
+</html>
