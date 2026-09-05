@@ -98,65 +98,48 @@ function draw(){
        IMAGE FULL SLICE
     ========================= */
 
-    if(images[i] && images[i].complete && images[i].naturalWidth){
+if(images[i] && images[i].complete && images[i].naturalWidth){
 
-      ctx.save();
+  const mid = (a0 + a1) / 2;
 
-      /* Image ko poore sector ke andar rakho */
-      ctx.beginPath();
-      ctx.moveTo(cx, cy);
-      ctx.arc(cx, cy, r, a0, a1);
-      ctx.closePath();
-      ctx.clip();
+  const ix = cx + Math.cos(mid) * r * 0.62;
+  const iy = cy + Math.sin(mid) * r * 0.62;
 
-      const iw = images[i].naturalWidth;
-      const ih = images[i].naturalHeight;
+  const size = r * 0.43;
 
-      /*
-        Image ko wheel ke size tak bada karo
-        taaki slot khaali na rahe.
-      */
-const mid = (a0 + a1) / 2;
+  ctx.save();
 
-const ix = cx + Math.cos(mid) * r * 0.62;
-const iy = cy + Math.sin(mid) * r * 0.62;
+  // Circular photo slot
+  ctx.beginPath();
+  ctx.arc(ix, iy, size * 0.48, 0, Math.PI * 2);
+  ctx.clip();
 
-const box = r * 0.38;
+  const iw = images[i].naturalWidth;
+  const ih = images[i].naturalHeight;
 
-const scale = Math.min(
-  box / iw,
-  box / ih
-);
+  const scale = Math.max(size / iw, size / ih) * 1.55;
 
-const dw = iw * scale;
-const dh = ih * scale;
+  const dw = iw * scale;
+  const dh = ih * scale;
 
-ctx.drawImage(
-  images[i],
-  ix - dw / 2,
-  iy - dh / 2,
-  dw,
-  dh
-);
+  ctx.drawImage(
+    images[i],
+    ix - dw / 2,
+    iy - dh / 2,
+    dw,
+    dh
+  );
 
-      ctx.restore();
+  ctx.restore();
 
-    }else{
+  // Circle border
+  ctx.beginPath();
+  ctx.arc(ix, iy, size * 0.48, 0, Math.PI * 2);
+  ctx.strokeStyle = "#fff";
+  ctx.lineWidth = 4;
+  ctx.stroke();
 
-      /* Image load na ho to number */
-      const mid = (a0 + a1) / 2;
-
-      ctx.fillStyle = "#fff";
-      ctx.font = "bold 34px Arial";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-
-      ctx.fillText(
-        i + 1,
-        cx + Math.cos(mid) * r * .65,
-        cy + Math.sin(mid) * r * .65
-      );
-    }
+}
 
     /* =========================
        SLICE BORDER
