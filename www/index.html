@@ -116,21 +116,28 @@ function draw(){
         Image ko wheel ke size tak bada karo
         taaki slot khaali na rahe.
       */
-      const scale = Math.max(
-        (r * 2) / iw,
-        (r * 2) / ih
-      );
+const mid = (a0 + a1) / 2;
 
-      const dw = iw * scale;
-      const dh = ih * scale;
+const ix = cx + Math.cos(mid) * r * 0.62;
+const iy = cy + Math.sin(mid) * r * 0.62;
 
-      ctx.drawImage(
-        images[i],
-        cx - dw / 2,
-        cy - dh / 2,
-        dw,
-        dh
-      );
+const box = r * 0.38;
+
+const scale = Math.min(
+  box / iw,
+  box / ih
+);
+
+const dw = iw * scale;
+const dh = ih * scale;
+
+ctx.drawImage(
+  images[i],
+  ix - dw / 2,
+  iy - dh / 2,
+  dw,
+  dh
+);
 
       ctx.restore();
 
